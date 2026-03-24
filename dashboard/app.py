@@ -27,7 +27,7 @@ st.title("📊 Product Analytics Dashboard")
 # =========================
 st.header("DAU (Daily Active Users)")
 
-dau_query = load_sql(dau.sql)
+dau_query = load_sql('dau.sql')
 dau_df = pd.read_sql(dau_query, conn)
 st.line_chart(dau_df.set_index("date"))
 
