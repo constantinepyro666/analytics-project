@@ -1,9 +1,5 @@
-SELECT 
-	--COUNT(DISTINCT CASE WHEN event_type = 'signup' THEN user_id END) as signup,
-    --COUNT(DISTINCT CASE WHEN event_type = 'login' THEN user_id END) as login,
-	--COUNT(DISTINCT CASE WHEN event_type = 'create_note' THEN user_id END) as create_note
-	event_type,
-	COUNT(DISTINCT user_id) AS users
-FROM events
-GROUP BY event_type
-ORDER BY users DESC
+SELECT
+    COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'login') AS login,
+    COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'view_note') AS view_note,
+    COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'create_note') AS create_note
+FROM events;
