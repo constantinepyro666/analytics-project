@@ -1,6 +1,14 @@
+import os
 import streamlit as st
 import pandas as pd
 import psycopg2
+
+# функция для загрузки SQL из файлов
+def load_sql(filename):
+    base_dir = os.path.dirname(__file__)
+    path = os.path.join(base_dir, '..', 'sql', filename)
+    with open(path, 'r') as f:
+        return f.read()
 
 # --- подключение к базе ---
 conn = psycopg2.connect(
