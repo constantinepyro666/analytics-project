@@ -1,5 +1,8 @@
 http://46.149.77.76:8501/
 
+git pull на сервере - если поменял на гитхабе, надо применить на сервере
+git add, git commit, git push - поменял на сервере, надо применить на гитхабе
+
 Events
 
 The system tracks the following user events:
