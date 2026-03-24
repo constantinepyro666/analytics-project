@@ -48,6 +48,7 @@ st.header("Funnel")
 funnel_query = load_sql('funnel.sql')
 funnel_df = pd.read_sql(funnel_query, conn)
 st.bar_chart(funnel_df.set_index("event_type"))
-
+st.write(funnel_df)
+st.write(funnel_df.columns)
 # --- закрытие соединения ---
 conn.close()
