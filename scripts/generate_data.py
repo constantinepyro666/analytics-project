@@ -1,6 +1,8 @@
 import pandas as pd
 import random
 from datetime import datetime, timedelta
+import os
+os.makedirs("data", exist_ok=True)
 
 NUM_USERS = 1000
 
@@ -25,6 +27,6 @@ for user_id in range(1, NUM_USERS + 1):
 
 df = pd.DataFrame(events, columns=["user_id", "event_type", "event_time", "platform"])
 
-df.to_csv("events.csv", index=False)
+df.to_csv("data/events.csv", index=False)
 
 print(f"Generated {len(df)} events")
