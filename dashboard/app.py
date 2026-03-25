@@ -47,6 +47,14 @@ st.header("Funnel")
 
 funnel_query = load_sql('funnel.sql')
 funnel_df = pd.read_sql(funnel_query, conn)
+
+# фикс порядка шагов funnel
+funnel_df["event_type"] = pd.Categorical(
+    funnel_df["event_type"],
+    categories=["login", "view_note", "create_note"],
+    ordered=True
+)
+funnel_df = funnel_df.sort_values("event_type")
 st.bar_chart(funnel_df.set_index("event_type"))
 
 # --- закрытие соединения ---
