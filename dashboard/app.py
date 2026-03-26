@@ -11,11 +11,20 @@ def load_sql(filename):
         return f.read()
 
 # --- подключение к базе ---
-conn = psycopg2.connect(
+### conn = psycopg2.connect(
     dbname="analytics",
     user="analyst",
     password="1234",
     host="localhost",
+    port="5432"
+)
+
+# --- подключение к базе ---
+conn = psycopg2.connect(
+    dbname=os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    host=os.getenv("DB_HOST"),
     port="5432"
 )
 
