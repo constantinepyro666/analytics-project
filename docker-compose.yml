@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    container_name: analytics_db
+    restart: always
+    environment:
+      POSTGRES_DB: analytics
+      POSTGRES_USER: analyst
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d   # ← ВАЖНО
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: analytics_app
+    depends_on:
+      - db
+    ports:
+      - "8502:8501"
+    environment:
+      DB_HOST: db
+      DB_NAME: analytics
+      DB_USER: analyst
+      DB_PASSWORD: 1234
+
+volumes:
+  postgres_data:
