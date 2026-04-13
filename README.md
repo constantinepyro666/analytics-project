@@ -1,36 +1,39 @@
+## Ссылка на дашборд
+
 http://46.149.77.76:8501/
 
-Events
+---
 
-The system tracks the following user events:
+## Отслеживаемые события
 
-- signup — user registration
-- login — user login
-- view_note — viewing notes
-- create_note — creating a note
+* **signup** — регистрация пользователя
+* **login** — вход в систему
+* **view_note** — просмотр заметки
+* **create_note** — создание заметки
 
-Metrics
+---
 
-The following metrics will be calculated:
+## Платформы
 
-- DAU (Daily Active Users)
-- MAU (Monthly Active Users)
-- Retention (Day 1, Day 7)
-- Funnel conversion:
-  signup → login → create_note
+* iOS
+* Android
+* Web
 
+---
 
-Hypotheses
+## Метрики
 
-- Retention drops after the first day due to weak onboarding
-- Not all users reach the "create_note" stage
-- Mobile users may behave differently than web users
+* **DAU (Daily Active Users)** — количество активных пользователей в день
+* **MAU (Monthly Active Users)** — количество активных пользователей в месяц
+* **Retention (Day 1, Day 7)** — возвращаемость пользователей
+* **Funnel Conversion** — конверсия от регистрации до создания заметки:
+  `signup → login → create_note`
 
+---
 
-Platforms
+## Гипотезы
 
-Users can use the app on:
+* Возвращаемость падает после первого дня из-за слабого онбординга
+* Не все пользователи доходят до этапа **create_note**
+* Поведение пользователей на мобильных платформах может отличаться от веба
 
-- iOS
-- Android
-- Web
