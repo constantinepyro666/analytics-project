@@ -6,7 +6,7 @@ FROM events
 GROUP BY event_type
 ORDER BY 
     CASE event_type
-        WHEN 'signup' THEN 1
+        WHEN 'login' THEN 1
         WHEN 'view_note' THEN 2
         WHEN 'create_note' THEN 3
     END;
