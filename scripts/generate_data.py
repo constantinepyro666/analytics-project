@@ -10,13 +10,12 @@ events = []
 
 start_date = datetime(2026, 2, 1)
 
-platform = random.choices(
+for user_id in range(1, NUM_USERS + 1):
+
+    platform = random.choices(
     ["iOS", "Android", "Web"],
     weights=[0.4, 0.4, 0.2]
 )[0]
-
-for user_id in range(1, NUM_USERS + 1):
-
     
     # login (всегда)
     login_time = start_date + timedelta(days=random.randint(0, 30))
