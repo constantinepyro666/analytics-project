@@ -48,7 +48,7 @@ funnel_df = pd.read_sql(funnel_query, conn)
 # фикс порядка шагов funnel
 funnel_df["event_type"] = pd.Categorical(
     funnel_df["event_type"],
-    categories=["signup", "view_note", "create_note"],
+    categories=["login", "view_note", "create_note"],
     ordered=True
 )
 funnel_df = funnel_df.sort_values("event_type")
