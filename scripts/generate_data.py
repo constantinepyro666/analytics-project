@@ -17,7 +17,7 @@ platform = random.choices(
 
 for user_id in range(1, NUM_USERS + 1):
 
-    platform = random.choice(platforms)
+    platform = random.choice(platform)
     
     # login (всегда)
     login_time = start_date + timedelta(days=random.randint(0, 30))
