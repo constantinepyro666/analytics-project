@@ -54,5 +54,11 @@ funnel_df["event_type"] = pd.Categorical(
 funnel_df = funnel_df.sort_values("event_type")
 st.bar_chart(funnel_df.set_index("event_type"))
 
+
+st.header("Debug: raw data")
+
+df = pd.read_sql("SELECT * FROM events LIMIT 100", conn)
+st.dataframe(df)
+
 # --- закрытие соединения ---
 conn.close()
