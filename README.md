@@ -26,7 +26,7 @@ http://46.149.77.76:8501/
 * **DAU (Daily Active Users)** — количество активных пользователей в день
 * **Retention (Day N)** — удержание пользователей по дням после регистрации
 * **Funnel Conversion** — конверсия от регистрации до создания заметки:
-  `signup → login → create_note`
+  `signup → view_note → create_note`
 
 ---
 
