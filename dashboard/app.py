@@ -31,7 +31,7 @@ st.line_chart(dau_df.set_index("date"))
 # =========================
 # Retention (D1)
 # =========================
-st.header("Retention D1")
+st.header("Retention")
 
 retention_query = load_sql('retention.sql')
 ret_df = pd.read_sql(retention_query, conn)
