@@ -100,20 +100,7 @@ st.line_chart(pivot_df)
 # =========================
 st.header("Funnel")
 
-funnel_query = load_sql('funnel.sql')
-funnel_df = pd.read_sql(funnel_query, conn)
-
-# фикс порядка шагов funnel
-funnel_df["event_type"] = pd.Categorical(
-    funnel_df["event_type"],
-    categories=["login", "view_note", "create_note"],
-    ordered=True
-)
-funnel_df = funnel_df.sort_values("event_type")
-st.bar_chart(funnel_df.set_index("event_type"))
-
-st.header("Funnel by platform")
-
+# --- SQL ---
 funnel_platform_query = """
 SELECT 
     platform,
@@ -125,15 +112,23 @@ GROUP BY platform;
 """
 
 fp_df = pd.read_sql(funnel_platform_query, conn)
-plot_df = fp_df.set_index("platform")[["login", "view_note", "create_note"]].T
-st.bar_chart(plot_df)
 
-# считаем конверсию
-fp_df["conversion"] = fp_df["create_note"] / fp_df["login"] * 100
+# --- конверсия в целевое действие ---
+fp_df["conversion_to_create"] = fp_df["create_note"] / fp_df["login"] * 100
 
+# --- показываем таблицу ---
+st.subheader("Funnel table")
 st.dataframe(fp_df)
 
-st.bar_chart(fp_df.set_index("platform")[["login", "view_note", "create_note"]])
+# --- готовим данные для графика (события по X, платформы — цвета) ---
+plot_df = fp_df.set_index("platform")[["login", "view_note", "create_note"]].T
+
+# фикс порядка шагов
+plot_df = plot_df.loc[["login", "view_note", "create_note"]]
+
+# --- график ---
+st.subheader("Funnel by platform")
+st.bar_chart(plot_df)
 
 # посмотреть датасет
 st.header("Data")
