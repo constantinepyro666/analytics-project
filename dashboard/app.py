@@ -125,6 +125,8 @@ GROUP BY platform;
 """
 
 fp_df = pd.read_sql(funnel_platform_query, conn)
+plot_df = fp_df.set_index("platform")[["login", "view_note", "create_note"]].T
+st.bar_chart(plot_df)
 
 # считаем конверсию
 fp_df["conversion"] = fp_df["create_note"] / fp_df["login"] * 100
