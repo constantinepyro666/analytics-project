@@ -75,6 +75,8 @@
 - app (Streamlit)
 - db (PostgreSQL)
 
+---
+
 ## 🌐 Деплой
 
 Дашборд развернут на VPS (Ubuntu):
