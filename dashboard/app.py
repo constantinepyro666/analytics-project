@@ -112,8 +112,29 @@ funnel_df["event_type"] = pd.Categorical(
 funnel_df = funnel_df.sort_values("event_type")
 st.bar_chart(funnel_df.set_index("event_type"))
 
+st.header("Funnel by platform")
+
+funnel_platform_query = """
+SELECT 
+    platform,
+    COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'login') as login,
+    COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'view_note') as view_note,
+    COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'create_note') as create_note
+FROM events
+GROUP BY platform;
+"""
+
+fp_df = pd.read_sql(funnel_platform_query, conn)
+
+# считаем конверсию
+fp_df["conversion"] = fp_df["create_note"] / fp_df["login"] * 100
+
+st.dataframe(fp_df)
+
+st.bar_chart(fp_df.set_index("platform")[["login", "view_note", "create_note"]])
+
 # посмотреть датасет
-st.header("Debug: raw data")
+st.header("Data")
 
 df = pd.read_sql("SELECT * FROM events LIMIT 1000", conn)
 st.dataframe(df)
