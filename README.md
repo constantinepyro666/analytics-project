@@ -1,5 +1,5 @@
 # 📊 Product Analytics Dashboard
-
+![Dashboard](dashboard.png)
 ## 📌 Описание проекта
 Дашборд продуктовой аналитики для анализа поведения пользователей: DAU, retention и воронка конверсии.  
 Данные сгенерированы и загружены в PostgreSQL.
