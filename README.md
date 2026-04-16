@@ -67,16 +67,3 @@ login → view_note → create_note
 - платформы: iOS / Android / Web  
 - временной диапазон до нескольких дней после первого события  
 
----
-
-## 🚀 Запуск
-
-```bash
-git clone <repo>
-cd analytics-project
-
-pip install -r requirements.txt
-
-# запуск приложения
-streamlit run dashboard/app.py
-
