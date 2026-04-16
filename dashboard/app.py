@@ -132,9 +132,29 @@ plot_df = plot_df.reindex(["login", "view_note", "create_note"])
 plot_df.index = ["Login", "View Note", "Create Note"]
 
 # --- график ---
-st.subheader("Funnel by platform")
-st.bar_chart(plot_df)
+import altair as alt
 
+st.subheader("Funnel by platform")
+
+# возвращаем в "длинный" формат
+plot_long = plot_df.reset_index().melt(
+    id_vars="index",
+    var_name="platform",
+    value_name="users"
+)
+
+plot_long = plot_long.rename(columns={"index": "step"})
+
+# фикс порядка шагов
+step_order = ["Login", "View Note", "Create Note"]
+
+chart = alt.Chart(plot_long).mark_bar().encode(
+    x=alt.X("step:N", sort=step_order),
+    y="users:Q",
+    color="platform:N"
+)
+
+st.altair_chart(chart, use_container_width=True)
 # посмотреть датасет
 st.header("Data")
 
