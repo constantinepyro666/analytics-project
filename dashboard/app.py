@@ -43,17 +43,40 @@ st.line_chart(dau_platform.pivot(index="date", columns="platform", values="dau")
 # =========================
 # Retention (D1)
 # =========================
-st.header("Retention")
+#st.header("Retention")
 
 # retention_query = load_sql('retention.sql')
 # ret_df = pd.read_sql(retention_query, conn)
 # st.dataframe(ret_df)
+st.header("Retention by platform")
+
+retention_platform_query = """
+WITH first_events AS (
+    SELECT 
+        user_id,
+        MIN(DATE(event_time)) as signup_date
+    FROM events
+    GROUP BY user_id
+),
+activity AS (
+    SELECT 
+        e.user_id,
+        e.platform,
+        DATE(e.event_time) - f.signup_date as day
+    FROM events e
+    JOIN first_events f ON e.user_id = f.user_id
+)
 SELECT 
     platform,
-    COUNT(DISTINCT user_id) FILTER (WHERE day = 1) * 100.0 / 
+    COUNT(DISTINCT user_id) FILTER (WHERE day = 1) * 100.0 /
     COUNT(DISTINCT user_id) FILTER (WHERE day = 0) AS d1_retention
-FROM retention_table
-GROUP BY platform;
+FROM activity
+GROUP BY platform
+"""
+
+retention_platform_df = pd.read_sql(retention_platform_query, conn)
+
+st.dataframe(retention_platform_df)
 # =========================
 # Funnel
 # =========================
