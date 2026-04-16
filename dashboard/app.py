@@ -80,7 +80,7 @@ SELECT
     COUNT(DISTINCT a.user_id) * 100.0 / c.users as retention
 FROM activity a
 JOIN cohort_size c ON a.platform = c.platform
-# WHERE a.day <= 7
+WHERE a.day <= 30
 GROUP BY a.platform, a.day, c.users
 ORDER BY a.platform, a.day
 """
