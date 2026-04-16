@@ -24,9 +24,21 @@ st.title("📊 Product Analytics Dashboard")
 # =========================
 st.header("DAU (Daily Active Users)")
 
-dau_query = load_sql('dau.sql')
-dau_df = pd.read_sql(dau_query, conn)
-st.line_chart(dau_df.set_index("date"))
+# dau_query = load_sql('dau.sql')
+# dau_df = pd.read_sql(dau_query, conn)
+# st.line_chart(dau_df.set_index("date"))
+
+dau_platform = pd.read_sql("""
+SELECT 
+    DATE(event_time) as date,
+    platform,
+    COUNT(DISTINCT user_id) as dau
+FROM events
+GROUP BY date, platform
+""", conn)
+
+st.line_chart(dau_platform.pivot(index="date", columns="platform", values="dau"))
+
 
 # =========================
 # Retention (D1)
