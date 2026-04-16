@@ -113,18 +113,23 @@ GROUP BY platform;
 
 fp_df = pd.read_sql(funnel_platform_query, conn)
 
-# --- конверсия в целевое действие ---
+# --- конверсии ---
+fp_df["conversion_to_view"] = fp_df["view_note"] / fp_df["login"] * 100
 fp_df["conversion_to_create"] = fp_df["create_note"] / fp_df["login"] * 100
+fp_df["view_to_create"] = fp_df["create_note"] / fp_df["view_note"] * 100
 
-# --- показываем таблицу ---
+# --- таблица ---
 st.subheader("Funnel table")
 st.dataframe(fp_df)
 
-# --- готовим данные для графика (события по X, платформы — цвета) ---
+# --- подготовка данных для графика ---
 plot_df = fp_df.set_index("platform")[["login", "view_note", "create_note"]].T
 
-# фикс порядка шагов
-plot_df = plot_df.loc[["login", "view_note", "create_note"]]
+# фикс порядка шагов (ВАЖНО)
+plot_df = plot_df.reindex(["login", "view_note", "create_note"])
+
+# (опционально — красивое название шагов)
+plot_df.index = ["Login", "View Note", "Create Note"]
 
 # --- график ---
 st.subheader("Funnel by platform")
