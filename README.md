@@ -10,7 +10,6 @@
 
 - Python (pandas, streamlit)
 - PostgreSQL
-- SQL
 - Docker / Docker Compose
 - VPS (Ubuntu)
 - systemd (автозапуск сервиса)
