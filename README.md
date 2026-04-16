@@ -13,6 +13,7 @@
 - Python (pandas, streamlit)
 - PostgreSQL
 - SQL
+- Docker / Docker Compose
 - VPS (Ubuntu)
 - systemd (автозапуск сервиса)
 
@@ -27,6 +28,7 @@
 - Построен дашборд в Streamlit
 - Добавлена сегментация по платформам
 - Настроен деплой на VPS
+- Контейнеризация приложения с помощью Docker
 - Реализован автозапуск через systemd
 
 ---
@@ -35,9 +37,7 @@
 
 - **DAU (Daily Active Users)** — количество активных пользователей в день  
 - **Retention (Day N)** — возвращаемость пользователей по дням  
-- **Funnel Conversion** — конверсия по шагам:
-login → view_note → create_note
-
+- **Funnel Conversion** — конверсия по шагам: login → view_note → create_note
 
 ---
 
@@ -67,3 +67,18 @@ login → view_note → create_note
 - платформы: iOS / Android / Web  
 - временной диапазон до нескольких дней после первого события  
 
+---
+
+## 🐳 Docker
+
+Структура контейнеров:
+- app (Streamlit)
+- db (PostgreSQL)
+
+## 🌐 Деплой
+
+Дашборд развернут на VPS (Ubuntu):
+
+запуск через systemd
+доступ по адресу:
+http://46.149.77.76:8501
