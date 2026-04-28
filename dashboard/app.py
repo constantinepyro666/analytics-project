@@ -43,69 +43,45 @@ st.line_chart(dau_platform.pivot(index="date", columns="platform", values="dau")
 # =========================
 # Retention
 # =========================
-#st.header("Retention")
+st.header("Retention heatmap (cohort)")
 
-# retention_query = load_sql('retention.sql')
-# ret_df = pd.read_sql(retention_query, conn)
-# st.dataframe(ret_df)
-st.header("Retention by platform (daily)")
-
-retention_platform_query = """
+retention_query = """
 WITH first_events AS (
-    SELECT DISTINCT ON (user_id)
+    SELECT 
         user_id,
-        DATE(event_time) AS signup_date,
-        platform
+        MIN(DATE(event_time)) AS cohort_date
     FROM events
-    ORDER BY user_id, event_time
+    GROUP BY user_id
 ),
 
 activity AS (
     SELECT 
         e.user_id,
-        f.platform,
-        DATE(e.event_time) - f.signup_date AS day
+        DATE(e.event_time) AS event_date,
+        f.cohort_date,
+        DATE(e.event_time) - f.cohort_date AS day
     FROM events e
     JOIN first_events f ON e.user_id = f.user_id
-    WHERE DATE(e.event_time) >= f.signup_date
+    WHERE DATE(e.event_time) >= f.cohort_date
 ),
 
 cohort_size AS (
     SELECT 
-        platform,
+        cohort_date,
         COUNT(DISTINCT user_id) AS users
     FROM first_events
-    GROUP BY platform
-),
-
-days AS (
-    SELECT generate_series(0, 30) AS day
-),
-
-retention AS (
-    SELECT 
-        f.platform,
-        d.day,
-        COUNT(DISTINCT f.user_id) FILTER (
-            WHERE EXISTS (
-                SELECT 1 
-                FROM activity a 
-                WHERE a.user_id = f.user_id 
-                AND a.day >= d.day
-            )
-        ) AS retained_users
-    FROM first_events f
-    CROSS JOIN days d
-    GROUP BY f.platform, d.day
+    GROUP BY cohort_date
 )
 
 SELECT 
-    r.platform,
-    r.day,
-    r.retained_users * 100.0 / c.users AS retention
-FROM retention r
-JOIN cohort_size c ON r.platform = c.platform
-ORDER BY r.platform, r.day
+    a.cohort_date,
+    a.day,
+    COUNT(DISTINCT a.user_id) * 100.0 / c.users AS retention
+FROM activity a
+JOIN cohort_size c ON a.cohort_date = c.cohort_date
+WHERE a.day BETWEEN 0 AND 14
+GROUP BY a.cohort_date, a.day, c.users
+ORDER BY a.cohort_date, a.day
 """
 
 retention_platform_df = pd.read_sql(retention_platform_query, conn)
