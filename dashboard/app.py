@@ -43,20 +43,24 @@ st.line_chart(dau_platform.pivot(index="date", columns="platform", values="dau")
 # =========================
 # Retention
 # =========================
-st.header("Retention (simple, daily)")
+st.header("Retention by platform (daily)")
 
-retention_query = """
+retention_platform_query = """
 WITH first_events AS (
-    SELECT 
+    -- фиксируем первый визит пользователя + его "родную" платформу
+    SELECT DISTINCT ON (user_id)
         user_id,
-        MIN(DATE(event_time)) AS signup_date
+        DATE(event_time) AS signup_date,
+        platform
     FROM events
-    GROUP BY user_id
+    ORDER BY user_id, event_time
 ),
 
 activity AS (
+    -- считаем дни жизни пользователя относительно signup_date
     SELECT 
         e.user_id,
+        f.platform,
         DATE(e.event_time) - f.signup_date AS day
     FROM events e
     JOIN first_events f ON e.user_id = f.user_id
@@ -64,23 +68,42 @@ activity AS (
 ),
 
 cohort_size AS (
-    SELECT COUNT(DISTINCT user_id) AS users
+    -- размер когорты (день 0) по платформе первого визита
+    SELECT 
+        platform,
+        COUNT(DISTINCT user_id) AS users
     FROM first_events
+    GROUP BY platform
+),
+
+retention AS (
+    SELECT 
+        a.platform,
+        a.day,
+        COUNT(DISTINCT a.user_id) AS active_users
+    FROM activity a
+    WHERE a.day <= 30
+    GROUP BY a.platform, a.day
 )
 
 SELECT 
-    day,
-    COUNT(DISTINCT user_id) * 100.0 / (SELECT users FROM cohort_size) AS retention
-FROM activity
-WHERE day BETWEEN 0 AND 14
-GROUP BY day
-ORDER BY day
+    r.platform,
+    r.day,
+    r.active_users * 100.0 / c.users AS retention
+FROM retention r
+JOIN cohort_size c ON r.platform = c.platform
+ORDER BY r.platform, r.day
 """
-retention_df = pd.read_sql(retention_query, conn)
 
-retention_df = retention_df.set_index("day")
+retention_platform_df = pd.read_sql(retention_platform_query, conn)
 
-st.line_chart(retention_df)
+pivot_df = retention_platform_df.pivot(
+    index="day",
+    columns="platform",
+    values="retention"
+)
+
+st.line_chart(pivot_df)
 # =========================
 # Funnel
 # =========================
