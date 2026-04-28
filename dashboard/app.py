@@ -84,16 +84,15 @@ GROUP BY a.cohort_date, a.day, c.users
 ORDER BY a.cohort_date, a.day
 """
 
-retention_platform_df = pd.read_sql(retention_platform_query, conn)
+retention_df = pd.read_sql(retention_query, conn)
 
-pivot_df = retention_platform_df.pivot(
-    index="day",
-    columns="platform",
+pivot_df = retention_df.pivot(
+    index="cohort_date",
+    columns="day",
     values="retention"
 )
 
-st.line_chart(pivot_df)
-
+st.dataframe(pivot_df.style.background_gradient(cmap="Blues"))
 # =========================
 # Funnel
 # =========================
