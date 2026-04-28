@@ -43,13 +43,13 @@ st.line_chart(dau_platform.pivot(index="date", columns="platform", values="dau")
 # =========================
 # Retention
 # =========================
-st.header("Retention heatmap (cohort)")
+st.header("Retention (simple, daily)")
 
 retention_query = """
 WITH first_events AS (
     SELECT 
         user_id,
-        MIN(DATE(event_time)) AS cohort_date
+        MIN(DATE(event_time)) AS signup_date
     FROM events
     GROUP BY user_id
 ),
@@ -57,42 +57,30 @@ WITH first_events AS (
 activity AS (
     SELECT 
         e.user_id,
-        DATE(e.event_time) AS event_date,
-        f.cohort_date,
-        DATE(e.event_time) - f.cohort_date AS day
+        DATE(e.event_time) - f.signup_date AS day
     FROM events e
     JOIN first_events f ON e.user_id = f.user_id
-    WHERE DATE(e.event_time) >= f.cohort_date
+    WHERE DATE(e.event_time) >= f.signup_date
 ),
 
 cohort_size AS (
-    SELECT 
-        cohort_date,
-        COUNT(DISTINCT user_id) AS users
+    SELECT COUNT(DISTINCT user_id) AS users
     FROM first_events
-    GROUP BY cohort_date
 )
 
 SELECT 
-    a.cohort_date,
-    a.day,
-    COUNT(DISTINCT a.user_id) * 100.0 / c.users AS retention
-FROM activity a
-JOIN cohort_size c ON a.cohort_date = c.cohort_date
-WHERE a.day BETWEEN 0 AND 14
-GROUP BY a.cohort_date, a.day, c.users
-ORDER BY a.cohort_date, a.day
+    day,
+    COUNT(DISTINCT user_id) * 100.0 / (SELECT users FROM cohort_size) AS retention
+FROM activity
+WHERE day BETWEEN 0 AND 14
+GROUP BY day
+ORDER BY day
 """
-
 retention_df = pd.read_sql(retention_query, conn)
 
-pivot_df = retention_df.pivot(
-    index="cohort_date",
-    columns="day",
-    values="retention"
-)
+retention_df = retention_df.set_index("day")
 
-st.dataframe(pivot_df.style.background_gradient(cmap="Blues"))
+st.line_chart(retention_df)
 # =========================
 # Funnel
 # =========================
