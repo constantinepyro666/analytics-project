@@ -11,8 +11,12 @@ def load_sql(filename):
         return f.read()
 
 # --- подключение к базе ---
+
 conn = psycopg2.connect(
-   dbname="analytics", user="analyst", password="1234", host="localhost",
+    dbname=os.getenv("DB_NAME"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    host=os.getenv("DB_HOST"),  # Docker подставит сюда "db"
     port="5432"
 )
 
@@ -24,16 +28,13 @@ st.title("📊 Product Analytics Dashboard")
 # =========================
 st.header("DAU (Daily Active Users)")
 
-# dau_query = load_sql('dau.sql')
-# dau_df = pd.read_sql(dau_query, conn)
-# st.line_chart(dau_df.set_index("date"))
 
 dau_platform = pd.read_sql("""
 SELECT 
     DATE(event_time) as date,
     platform,
     COUNT(DISTINCT user_id) as dau
-FROM events
+FROM user_events
 GROUP BY date, platform
 """, conn)
 
@@ -52,7 +53,7 @@ WITH first_events AS (
         user_id,
         DATE(event_time) AS signup_date,
         platform
-    FROM events
+    FROM user_events
     ORDER BY user_id, event_time
 ),
 
@@ -62,7 +63,7 @@ activity AS (
         e.user_id,
         f.platform,
         DATE(e.event_time) - f.signup_date AS day
-    FROM events e
+    FROM user_events e
     JOIN first_events f ON e.user_id = f.user_id
     WHERE DATE(e.event_time) >= f.signup_date
 ),
@@ -116,7 +117,7 @@ SELECT
     COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'login') as login,
     COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'view_note') as view_note,
     COUNT(DISTINCT user_id) FILTER (WHERE event_type = 'create_note') as create_note
-FROM events
+FROM user_events
 GROUP BY platform;
 """
 
@@ -167,7 +168,7 @@ st.altair_chart(chart, use_container_width=True)
 # посмотреть датасет
 st.header("Data")
 
-df = pd.read_sql("SELECT * FROM events LIMIT 1000", conn)
+df = pd.read_sql("SELECT * FROM user_events LIMIT 1000", conn)
 st.dataframe(df)
 
 # --- закрытие соединения ---
