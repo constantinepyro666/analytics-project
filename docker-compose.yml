@@ -20,6 +20,7 @@ services:
       - db
     ports:
       - "8501:8501"
+    restart: always 
     environment:
       DB_HOST: db
       DB_NAME: analytics
