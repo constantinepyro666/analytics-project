@@ -4,54 +4,61 @@ import pandas as pd
 import psycopg2
 import altair as alt
 
+# --- Настройка страницы ---
+st.set_page_config(page_title="Product Analytics Dashboard", layout="wide")
+
 # --- Функция для загрузки SQL из файлов ---
 def load_sql(filename):
+    # Путь относительно текущего файла app.py: ./sql/filename
     base_dir = os.path.dirname(__file__)
-    path = os.path.join(base_dir, '..', 'sql', filename)
-    with open(path, 'r') as f:
+    path = os.path.join(base_dir, 'sql', filename)
+    with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
-# --- подключение к базе ---
-conn = psycopg2.connect(
-    dbname=os.getenv("DB_NAME"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    host=os.getenv("DB_HOST"),  # Docker подставит сюда "db"
-    port="5432"
-)
+# --- Подключение к базе данных ---
+@st.cache_resource
+def get_connection():
+    return psycopg2.connect(
+        dbname=os.getenv("DB_NAME"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        host=os.getenv("DB_HOST"), 
+        port="5432"
+    )
 
-# --- заголовок ---
+conn = get_connection()
+
+# --- Заголовок ---
 st.title("📊 Product Analytics Dashboard")
 
 # =========================
-# DAU
+# Блок 1: DAU
 # =========================
 st.header("DAU (Daily Active Users)")
 
-# Загружаем SQL из файла
 dau_query = load_sql('dau.sql')
 dau_platform = pd.read_sql(dau_query, conn)
 
-st.line_chart(dau_platform.pivot(index="date", columns="platform", values="dau"))
+# Превращаем в сводную таблицу для графика
+dau_pivot = dau_platform.pivot(index="date", columns="platform", values="dau")
+st.line_chart(dau_pivot)
+
 
 # =========================
-# Retention
+# Блок 2: Retention
 # =========================
-st.header("Retention by platform (daily)")
+st.header("Retention by Platform (Daily)")
 
-# Загружаем SQL из файла
 retention_query = load_sql('retention.sql')
-retention_platform_df = pd.read_sql(retention_query, conn)
+retention_df = pd.read_sql(retention_query, conn)
 
-pivot_df = retention_platform_df.pivot(
-    index="day",
-    columns="platform",
-    values="retention"
-)
+# Превращаем в сводную таблицу (строки — дни жизни, колонки — платформы)
+retention_pivot = retention_df.pivot(index="day", columns="platform", values="retention")
+st.line_chart(retention_pivot)
 
-st.line_chart(pivot_df)
+
 # =========================
-# Funnel
+# Блок 3: Funnel
 # =========================
 st.header("Funnel")
 
@@ -95,11 +102,14 @@ chart = alt.Chart(plot_long).mark_bar().encode(
 
 st.altair_chart(chart)
 
-# посмотреть датасет
-st.header("Data")
 
-df = pd.read_sql("SELECT * FROM user_events LIMIT 1000", conn)
-st.dataframe(df)
+# =========================
+# Блок 4: Сырые данные
+# =========================
+with st.expander("Show Raw Data Sample"):
+    raw_data = pd.read_sql("SELECT * FROM user_events LIMIT 100", conn)
+    st.dataframe(raw_data, use_container_width=True)
 
-# --- закрытие соединения ---
-conn.close()
+# Закрытие соединения при остановке приложения (опционально для Streamlit)
+# conn.close() 
+
