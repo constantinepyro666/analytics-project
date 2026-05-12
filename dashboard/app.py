@@ -7,11 +7,13 @@ import altair as alt
 # --- Настройка страницы ---
 st.set_page_config(page_title="Product Analytics Dashboard", layout="wide")
 
-# --- Функция для загрузки SQL из файлов ---
+# --- Функция для загрузки SQL из файлов (ДЛЯ РАЗНЫХ ПАПОК) ---
 def load_sql(filename):
-    # Путь относительно текущего файла app.py: ./sql/filename
-    base_dir = os.path.dirname(__file__)
-    path = os.path.join(base_dir, 'sql', filename)
+    # __file__ указывает на analytics_project/dashboard/app.py
+    base_dir = os.path.dirname(__file__) 
+    # Выходим на уровень выше (в корень) и идем в папку sql
+    path = os.path.join(base_dir, '..', 'sql', filename)
+    
     with open(path, 'r', encoding='utf-8') as f:
         return f.read()
 
